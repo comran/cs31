@@ -1,0 +1,77 @@
+Output of #1 (beginning on the next line):
+endlendl
+grendel
+
+2) It prints a right triangle justified to the left.
+3)
+#include <iostream>
+using namespace std;
+
+int main() {
+  int side;
+
+  cout << "Enter a number: ";
+  cin >> side;
+
+  int i = 0;
+  while (i++ < side) {
+    int j = i;
+    while (--j >= 0) {
+      cout << "#";
+    }
+
+    cout << "\n";
+  }
+}
+
+4)
+#include <iostream>
+using namespace std;
+
+int main() {
+  int side;
+
+  cout << "Enter a number: ";
+  cin >> side;
+
+  int i = 0;
+  do {
+    if (i >= side) break;
+
+    int j = i;
+    do {
+      cout << "#";
+    } while (--j >= 0);
+
+    cout << "\n";
+  } while (++i < side);
+}
+
+5)
+#include <iostream>
+using namespace std;
+
+int main() {
+  int codeSection;
+
+  cout << "Enter a number: ";
+  cin >> codeSection;
+
+  switch (codeSection) {
+    case 281:
+      cout << "bigamy";
+      break;
+    case 321:
+    case 322:
+      cout << "selling illegal lottery tickets";
+      break;
+    case 383:
+      cout << "selling rancid butter";
+      break;
+    case 598:
+      cout << "wounding a bird in a public cemetery";
+      break;
+    default:
+      cout << "some other crime";
+  }
+}

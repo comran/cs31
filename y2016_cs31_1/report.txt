@@ -1,0 +1,9 @@
+Step 5:
+To produce nonsensical results for step 5, I first said that there were 5 people who voted in total. However, I then said that there were 4 Hillary voters and 8 Trump voters, which does not add up to the total given initially.
+
+Logic error:
+I did not divide by the total number of people surveyed when assigning the values to variables pctHillary and pctDonald in lines 20 and 21. As a result, the program only outputs the number of voters for each candidate, multiplied by 100.
+
+Compile error:
+Error 1: I did not put a semicolon after the integer declaration for forDonald in line 10. As a result, the compiler does not know where the command for that line terminates and returns an error when the program is built.
+Error 2: I did not write "using namespace std;" (without quotes) after the #include for <iostream>, which causes the program to not compile since the code for cout, cin, and endl are all in the ::std namespace. Since this namespace is not used, all instances of cout, cin, and endl fail since those objects were not made available in the global namespace. Another alternative to fix this problem would be to prefix all instances of cout, cin, and endl with "::std::" (without quotes).

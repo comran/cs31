@@ -1,0 +1,53 @@
+1) I had a difficult time getting the program to determine the start and end of the number of electoral votes for each state, and converting this substring into a number. This would also involve error correction in the format of the string, which would therefore require a loop to go through each character and make sure it is a digit. To solve this problem, I used a for statement to search until the first non-digit, and used a cast method to convert the substring containing these digits into an int. I also had trouble writing test cases to make sure that I had touched on every problem that could result from the hasCorrectSyntax portion of the code, since there are three distinct sections where errors coukd occur (state code, electoral votes, party character). Therefore, I spent extra time writing tests for this section since errors in the syntax checker would cause both methods to have bugs.
+
+2)
+To check correct syntax...
+loop through all characters in string
+  convert all letters to upper case
+  return false if any non alphanum characters are found
+set the current index equal to the first letter
+repeatedly, until the end of the string is reached:
+  check if the state substring from poll data is letters only
+    return false if not
+  search through US state array for the current state substring from poll data
+add two to the current index to get where the first electoral digit should be
+repeatedly, until the end of the string is reached:
+  check edge case to see if the last character in poll data is a party letter
+  check to see if the current character is a digit
+    if it is, increment number count
+  break when a letter is found
+check to see if at least one electoral number was found
+return success if no errors were found
+
+To count votes:
+repeatedly:
+  return code 1 if poll data does not have correct syntax
+  return code 3 if party parameter is not a letter
+  scroll to the first electoral number
+  loop until the state party letter
+  step back to the end of the electoral number
+  convert the electoral number substring to an int
+    return code 2 if a state has no electoral votes
+  if state party matches part parameter,
+    add state electoral votes to total vote sum
+  scroll until the beginning of the next state's electoral vote number
+
+For hasCorrectSyntax, test:
+To see if a poll data string with proper syntax & all caps works: TX38RCA55D
+To see if a poll data string does not need all caps to work: tx38rca55d
+To see if different parties work: TX38ACA55bDC2c
+To see if a super long poll data string works: cA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40xcA38RCa39dcA40x
+To see if a single letter state name does not work: A38R
+To see if a state not in the state array causes an error, even when a correct state follows: MX38RCA55D
+To see if any non-alphanum character anywhere in poll data causes an error: !MX38RCA55D, !!MX38RCA55D, MX38RCA55D!, TX3!8RCA55D
+To see if decimals do not work: TX3.8RCA55D
+To see if all states have an electoral number following: (counterexample) cARCa39dcA40x
+
+For countVotes, test:
+To see if a reasonable poll data string is counted correctly: TX1xCA5D gives 1 vote and returns 0 error code
+To see if case does not matter: tX1xCA5D gives 1 vote and returns 0 error code
+To see if multiple states are counted if they have the same party as the parameter: TX38RCA55DMs6rnY29dUT06L gives 84 votes and returns 0 error code
+To see if improper syntax returns error code 1 without changing the votes integer: TX0RCA!55D
+To see if a state with no electoral votes returns error code 2 without changing the votes integer: TX0RCA55D
+To see if a non-letter party parameter returns error code 3 with changing the votes integer: TX38RCA55D
+To see if an empty string works and sets votes to 0

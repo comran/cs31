@@ -1,0 +1,17 @@
+A) Some problems I had to overcome while completing this project: I had problems calculating the tax amount within each tax bracket, where I would be attempting to find the tax on a bigger sum of money within a certain bracket than was needed. This was due to a complex series of calculations that I used within the CalculateRevenue method in the LicenseToBill class, which I later simplified by breaking out the tax bracket calculation into a separate method and used a structure to represent the constants for each tax bracket used.
+In addition, I also had problems with the CLI frontend where input given to the program would be interpreted as both a revenue input and a country name. After reading the project FAQ page, I realized that I needed ot add in a ::std::cin.ignore(...) statement to avoid skipping input.
+
+B) Tests:
+No identification input before return (
+, 10, USA)
+Negative revenue (Mayfair House New York, -1, USA)
+No country input before return (Mayfair House New York, -1,
+)
+Zero revenue (Mayfair House New York, 0, USA)
+Lowercase UAE revenue (House, 10, uae)
+Special country revenue #1 (House, 100, UAE)
+Special country revenue #2, equal to special country revenue #1 (House, 100, Turkey)
+General country revenue, less than special country revenue (House, 100, USA)
+First tier revenue calculation (House, 10, USA)
+Second tier revenue calculation (House, 30, USA)
+Third tier revenue calculation (House, 60, USA)

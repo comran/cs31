@@ -12,27 +12,33 @@ Test lookup to see that the logic still holds for empty strings.
 Test lookup to see if it handles a negative n correctly.
 Test positionOfMax to see if it can find the highest alphabetically-ranked
 Test positionOfMax to see if it returns -1 for arrays with no elements.
+Test positionOfMax to see if it returns the smallest number of the greatest string, if two strings in the array are equal.
+Test positionOfMax to see if it can handle empty string elements.
 Test positionOfMax to see if it returns -1 if given a negative array length.
 Test rotateLeft to see if it can move the eliminated element to the last place.
 Test rotateLeft to make sure it doesn't go out of bounds.
 Test rotateLeft to see if it can handle rotating an array with only one element.
 Test rotateLeft to see if it returns -1 when given a 0 or negative n.
+Test rotateLeft to see if it can handle a bad position input.
 Test countRuns to see if it can count multiple runs.
 Test countRuns to see if it handles empty strings correctly.
+Test countRuns to see if it handles counting an empty array.
 Test countRuns to see if it returns -1 when given a negative n.
 Test flip to see if it can flip an array.
 Test flip to see if an n of 0 causes the function to return 0 without changing the array.
 Test flip to see if it can flip a single element array.
+Test flip to see if it can flip a double element array.
 Test flip to see if it returns -1 when given a bad n.
 Test differ to see if it can find a difference along the entire length of both arrays.
 Test differ to see if it can find a difference along a section of both arrays.
 Test differ to see if it returns -1 if either n provided is negative.
+Test differ to see if it returns the greater n if both arrays are equal up to one or both of the array lengths.
 Test subsequence to see if it can find a subsequence within a bigger array.
 Test subsequence to see if it returns -1 if it fails to find a subsequence within a bigger array.
 Test subsequence to see if it returns -1 if given a negative n.
 Test subsequence to see if a subsequence of 0 is found at the beginning of any sequence.
 Test lookupAny to see if it can find any element within one array that also exists in another & whether it returns the right position.
-Test lookupAny to see if it returns -1 if it cannot find a element from one array that also exists in another.
+Test lookupAny to see if it returns -1 if it cannot find an element from one array that also exists in another.
 Test lookupAny to see if it returns -1 if given a n of 0 or a negative n.
 Test separate to see if it can split an array into two sides based around elements on one side being greater than a provided string, and vice versa.
 Test separate to see if it can handle splitting an array where one side only has one element.

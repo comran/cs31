@@ -1,1 +1,263 @@
+1) While coding this project, I had the most trouble with figuring out how to implement certain routines using cstrings that I would have otherwise implemented using C++ strings. Error such as not appending the null character in some cases caused difficult-to-solve errors where tests would fail depending upon the raw composition of the memory block used by the program (and any remaining memory data that was previously set by another program, which could potentially be a null character, but could also be any other ascii character too). Combined with the complicated nature of some sections of my code, checking for these types of issues that may or may not arise in my tests proved to be the most time-consuming part of this project.
+
+2)
+normalizeRules:
+for every rule:
+  remove any rule that has an empty cstring for either word
+  remove any rule that has a non-positive distance
+
+  for every character in both words in the current rule:
+    if a non-letter character is found, remove rule
+
+  for all other rules:
+    remove any duplicate rules that have a lesser distance
+
+  if a remove has been requested:
+    shift all other rule elements down in each array
+  change the iteration variable to account for the removed element
+
+for every rule:
+  convert all characters to lower-case in both rule words
+
+return the number of rules that passed
+
+
+calculateSatisfaction:
+create a large-enough array to store the extracted words
+create a variable to track how many words exist in document
+create a variable to track the position of the last processed space
+
+for every character in the document cstring:
+  if the character is a space:
+    check if substring from last space to current position is a word
+    if a word is found:
+      extract the word from document into local words array
+      append null character to end of words array copy of word
+  if character is at end of string:
+    process last word from the last space to end of cstring
+
+for every found word:
+  for every character in that word:
+    remove any non-letter characters
+    convert all letters to lowercase
+
+begin with no satisfaction
+for every rule:
+  initiate variables tracking the first word that is searched for
+  for every found word until a match is found:
+    if either word matches either rule word:
+      record a match
+      record index of match
+  for every word following the match until rule distance away:
+    if opposing rule word matches current word:
+      increment satisfaction
+      continue to next rule
+return total satisfaction
+
+3) Tests from main file, including test data written to be executed on the methods:
+
+// Test normalizeRules to see if it corrects capitalization.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char testw1_OUTPUT[TEST_NRULES][MAX_WORD_LENGTH + 1] = {
+      "mad", "deranged", "nefarious", "have"};
+  char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                   "plot", "mad"};
+  char testw2_OUTPUT[TEST_NRULES][MAX_WORD_LENGTH + 1] = {
+      "scientist", "robot", "plot", "mad"};
+  int testdist[TEST_NRULES] = {2, 4, 1, 13};
+  int testdist_OUTPUT[TEST_NRULES] = {2, 4, 1, 13};
+
+  assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 4);
+  for (int i = 0; i < TEST_NRULES; i++) {
+    assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+    assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+    assert(testdist[i] == testdist_OUTPUT[i]);
+  }
+}
+
+// Test normalizeRules to see if it removes empty cstrings that appear in
+// either array.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"", "deranged",
+                                                   "nefarious", "have"};
+  char testw1_OUTPUT[2][MAX_WORD_LENGTH + 1] = {"nefarious", "have"};
+  char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "", "plot",
+                                                   "mad"};
+  char testw2_OUTPUT[2][MAX_WORD_LENGTH + 1] = {"plot", "mad"};
+  int testdist[TEST_NRULES] = {2, 4, 1, 13};
+  int testdist_OUTPUT[TEST_NRULES] = {1, 13};
+
+  assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 2);
+  for (int i = 0; i < 2; i++) {
+    assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+    assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+    assert(testdist[i] == testdist_OUTPUT[i]);
+  }
+}
+
+// Test normalizeRules to see if it removes duplicates.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged", "mad",
+                                                   "have"};
+  char testw1_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"mad", "deranged", "have"};
+  char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                   "scientist", "mad"};
+  char testw2_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"scientist", "robot", "mad"};
+  int testdist[TEST_NRULES] = {2, 4, 1, 13};
+  int testdist_OUTPUT[TEST_NRULES] = {2, 4, 13};
+
+  assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 3);
+  for (int i = 0; i < 3; i++) {
+    assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+    assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+    assert(testdist[i] == testdist_OUTPUT[i]);
+  }
+  assert(normalizeRules(testw1, testw2, testdist, 0) == 0);
+}
+
+// Test normalizeRules to see if it removes rules with special chars.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "george*", "have"};
+  char testw1_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"deranged", "have"};
+  char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scien.tist", "robot",
+                                                   "bob", "mad"};
+  char testw2_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"robot", "mad"};
+  int testdist[TEST_NRULES] = {2, 4, 1, 13};
+  int testdist_OUTPUT[TEST_NRULES] = {4, 13};
+
+  assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 2);
+  for (int i = 0; i < 2; i++) {
+    assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+    assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+    assert(testdist[i] == testdist_OUTPUT[i]);
+  }
+
+  assert(normalizeRules(testw1, testw2, testdist, 0) == 0);
+}
+
+// Test normalizeRules to see if it handles 20 char and 1 char cstrings.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"madmadmadmadmadmadma",
+                                                   "d", "bob", "have"};
+  char testw1_OUTPUT[TEST_NRULES][MAX_WORD_LENGTH + 1] = {
+      "madmadmadmadmadmadma", "d", "bob", "have"};
+  char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"aadmadmadmadmadmadma",
+                                                   "b", "boba", "havee"};
+  char testw2_OUTPUT[TEST_NRULES][MAX_WORD_LENGTH + 1] = {
+      "aadmadmadmadmadmadma", "b", "boba", "havee"};
+  int testdist[TEST_NRULES] = {2, 4, 1, 13};
+  int testdist_OUTPUT[TEST_NRULES] = {2, 4, 1, 13};
+
+  assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 4);
+  for (int i = 0; i < 4; i++) {
+    assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+    assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+    assert(testdist[i] == testdist_OUTPUT[i]);
+  }
+}
+
+// See if calculateSatisfaction can handle a normal sentence with a period.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(
+      calculateSatisfaction(
+          testw1, test5w2, test5dist, TEST_NRULES,
+          "The mad UCLA scientist unleashed a deranged evil giant robot.") ==
+      2);
+}
+
+// See if calculateSatisfaction can handle a sentence with back-to-back
+// spaces.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(calculateSatisfaction(
+             testw1, test5w2, test5dist, TEST_NRULES,
+             "The mad UCLA scientist unleashed    a deranged robot.") == 2);
+}
+
+// See if calculateSatisfaction can handle a document with no letters.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(calculateSatisfaction(testw1, test5w2, test5dist, TEST_NRULES,
+                               "**** 2016 ****") == 0);
+}
+
+// See if calculateSatisfaction can handle a document with a mix of uppercase,
+// lowercase special characters, and trailing whitespace.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(calculateSatisfaction(testw1, test5w2, test5dist, TEST_NRULES,
+                               "  That plot: NEFARIOUS!") == 1);
+}
+
+// See if calculateSatisfaction correctly searches for rules in a document
+// with multiple copies of the same word.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(calculateSatisfaction(
+             testw1, test5w2, test5dist, TEST_NRULES,
+             "deranged deranged robot deranged robot robot") == 1);
+}
+
+// Check to see if words separated by special characters instead of just a
+// space are concatenated together and searched through as such.
+{
+  const int TEST_NRULES = 4;
+  char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                   "nefarious", "have"};
+  char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                    "plot", "mad"};
+  int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+  assert(
+      calculateSatisfaction(testw1, test5w2, test5dist, TEST_NRULES,
+                            "That scientist said two mad scientists suffer "
+                            "from deranged-robot fever.") == 0);
+}
+
+// Test calculateSatisfaction to see if it can handle being passed no rules.
+{
+  const int TEST_NRULES = 4;
+  char testw1[0][MAX_WORD_LENGTH + 1] = {};
+  char test5w2[0][MAX_WORD_LENGTH + 1] = {};
+  int test5dist[TEST_NRULES] = {};
+  assert(
+      calculateSatisfaction(
+          testw1, test5w2, test5dist, TEST_NRULES,
+          "The mad UCLA scientist unleashed a deranged evil giant robot.") ==
+      0);
+}
+
 

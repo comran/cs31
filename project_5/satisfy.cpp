@@ -223,6 +223,26 @@ int main(int /*argc*/, char * /*argv*/ []) {
     assert(normalizeRules(testw1, testw2, testdist, 0) == 0);
   }
 
+  {
+    const int TEST_NRULES = 4;
+    char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged", "mad",
+                                                     "have"};
+    char testw1_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"deranged", "mad", "have"};
+    char testw2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                     "scientist", "mad"};
+    char testw2_OUTPUT[3][MAX_WORD_LENGTH + 1] = {"robot", "scientist", "mad"};
+    int testdist[TEST_NRULES] = {1, 4, 2, 13};
+    int testdist_OUTPUT[TEST_NRULES] = {4, 2, 13};
+
+    assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 3);
+    for (int i = 0; i < 3; i++) {
+      assert(!strcmp(testw1[i], testw1_OUTPUT[i]));
+      assert(!strcmp(testw2[i], testw2_OUTPUT[i]));
+      assert(testdist[i] == testdist_OUTPUT[i]);
+    }
+    assert(normalizeRules(testw1, testw2, testdist, 0) == 0);
+  }
+
   // Test normalizeRules to see if it removes rules with special chars.
   {
     const int TEST_NRULES = 4;
@@ -243,6 +263,16 @@ int main(int /*argc*/, char * /*argv*/ []) {
     }
 
     assert(normalizeRules(testw1, testw2, testdist, 0) == 0);
+  }
+
+  // Test normalizeRules to see if it handles 20 char and 1 char cstrings.
+  {
+    const int TEST_NRULES = 0;
+    char testw1[0][MAX_WORD_LENGTH + 1] = {};
+    char testw2[0][MAX_WORD_LENGTH + 1] = {};
+    int testdist[0] = {};
+
+    assert(normalizeRules(testw1, testw2, testdist, TEST_NRULES) == 0);
   }
 
   // Test normalizeRules to see if it handles 20 char and 1 char cstrings.
@@ -361,6 +391,22 @@ int main(int /*argc*/, char * /*argv*/ []) {
             testw1, test5w2, test5dist, TEST_NRULES,
             "The mad UCLA scientist unleashed a deranged evil giant robot.") ==
         0);
+  }
+
+  // See if calculateSatisfaction can handle an empty document.
+  {
+    const int TEST_NRULES = 4;
+    char testw1[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"mad", "deranged",
+                                                     "nefarious", "have"};
+    char test5w2[TEST_NRULES][MAX_WORD_LENGTH + 1] = {"scientist", "robot",
+                                                      "plot", "mad"};
+    int test5dist[TEST_NRULES] = {2, 4, 1, 13};
+    assert(calculateSatisfaction(testw1, test5w2, test5dist, TEST_NRULES,
+                                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                                 "aaaaaaaaaaaaaaaaaaaa") == 0);
   }
 
   cout << "All tests succeeded" << endl;

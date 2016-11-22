@@ -1,0 +1,188 @@
+// 1a
+int main() {
+  int arr[3] = {5, 10, 15};
+  int *ptr = arr;
+
+  *ptr = 30;        // set arr[0] to 30
+  *(ptr + 1) = 20;  // set arr[1] to 20
+  ptr += 2;
+  ptr[0] = 10;  // set arr[2] to 10
+
+  int *ptr_2 = arr;
+  do {
+    cout << *ptr_2 << endl;  // print values
+    ptr_2++;
+  } while (ptr >= ptr_2);
+}
+
+// 1b
+// This function will not pToMax to point to the element of arr with the maximum
+// value because it only modifies where the local parameter of pToMax points to.
+// Preceeding pToMax with an ampersand fixes this problem since it modifies a
+// reference to the pointer that was passed as a parameter to findMax.
+// Therefore, now when pToMax is changed to point towards the maximum values in
+// the array "arr", it also changes the pointer "ptr" in the main, which is used
+// to print out the address, position, and value of that maximum value.
+void findMax(int arr[], int n, int *&pToMax) {
+  if (n <= 0) return;  // no items, no maximum!
+
+  pToMax = &arr[0];
+
+  for (int i = 1; i < n; i++) {
+    if (arr[i] > *pToMax) pToMax = &*(arr + i);
+  }
+}
+
+int main() {
+  int nums[4] = {5, 3, 15, 6};
+  int *ptr;
+
+  findMax(nums, 4, ptr);
+
+  cout << ptr;
+  cout << "The maximum is at address " << ptr << endl;
+  cout << "It's at position " << ptr - nums << endl;
+  cout << "Its value is " << *ptr << endl;
+}
+
+// 1c
+// Memory was not allocated for the ptr, so the computeCube function cannot
+// store the result of n^3 in the memory that the pointer ncube points to.
+void computeCube(int n, int *ncubed) { *ncubed = n * n * n; }
+
+int main() {
+  int *ptr = new int;
+  computeCube(5, ptr);
+  cout << "Five cubed is " << *ptr << endl;
+}
+
+// 1d
+// The problem with the program is that it compares the entire array instead
+// of a single character.
+// To fix the functionality of strequal, every part of the code in the strequal
+// function where the current character is supposed to be compared needs a
+// dereference * operator. The incremental lines should not be changed since
+// those are shifting the 0 index of the array over to the right to proceed to
+// the next character.
+
+// return true if two C strings are equal
+bool strequal(const char str1[], const char str2[]) {
+  while (*str1 != 0 && *str2 != 0) {
+    cout << *str1 << " -- " << *str2 << endl;
+    if (*str1 != *str2)  // compare corresponding characters
+      return false;
+    str1++;  // advance to the next character
+    str2++;
+  }
+  return *str1 == *str2;  // both ended at same time?
+}
+
+int main() {
+  char a[15] = "Zhou";
+  char b[15] = "Zhou";
+
+  if (strequal(a, b)) cout << "They're the same person!\n";
+}
+
+// 1e
+// This program is attempting to return a local pointer in the function
+// getPtrToArray that would be cleared off the stack after the function
+// terminates. Currently, the address of stack memory associated with the local
+// variable *anArray is returned, which would not be accessible outside the
+// function in the way that was intended.
+
+int *getPtrToArray(int &m) {
+  int *anArray = new int[100];
+  for (int j = 0; j < 100; j++) anArray[j] = 100 - j;
+  m = 100;
+  return anArray;
+}
+
+void f() {
+  int junk[100];
+  for (int k = 0; k < 100; k++) junk[k] = 123400000 + k;
+}
+
+int main() {
+  int n;
+  int *ptr = getPtrToArray(n);
+  f();
+  for (int i = 0; i < 3; i++) cout << ptr[i] << ' ';
+  for (int i = n - 3; i < n; i++) cout << ptr[i] << ' ';
+  cout << endl;
+}
+
+// 2
+double *cat;
+double mouse[5];
+cat = mouse + 4;
+*cat = 25;
+*(mouse + 4) = 42;
+cat -= 3;
+*(cat + 1) = 54;
+*cat = 17;
+bool is_equal_to_after = *cat == *(cat + 1);
+bool points_to_start = cat == mouse;
+
+// 3a
+double mean(const double *scores, int numScores) {
+  double tot = 0;
+  for (int i = 0; i < numScores; i++) {
+    tot += *(scores + i);
+  }
+  return tot / numScores;
+}
+
+// 3b
+const char *findTheChar(const char str[], char chr) {
+  for (int k = 0; *(str + k) != 0; k++)
+    if (*(str + k) == chr) return &str[k];
+
+  return nullptr;
+}
+
+// 3c
+const char *findTheChar(const char str[], char chr) {
+  for (const char *cur_char = str; *cur_char != 0; cur_char++)
+    if (*cur_char == chr) return cur_char;
+
+  return nullptr;
+}
+
+// 4
+// The program begins by setting ptr equal to the address of the parameter given
+// to
+// 1. the function "maxwell" that has a greater value, which is the element at
+// index 0 in array since 5 > 4
+// 2. The element at this index is then set to - 1, so array[0] becomes - 1
+// 3. ptr advances two, so it now points to the element at index 2 in array
+// 4. The element after the one that ptr points to is set to 9, so array[3]
+// becomes 9.
+// 5. The first element of array is set to 79 The difference between the memory
+// locations of the fifth index of array of array and the current element that
+// ptr points to(index 4 of array) is printed, which is 5 - 2 = 3 since arrays
+// are contiguous. Before the swap functions are executed, the content of array
+// is { -1, 79, 4, 9, 22, 19 }
+// 6. swap1 swaps the memory locations that a and b point to, so swap1 would flip
+// elements at 0 and 1. However, this swap is only done locally since there is
+// no reference in the parameters for the a and b pointers, so there is no
+// change to array.
+// 7. swap2 swaps the values that are stored in the memory locations that a and b
+// point to (as opposed to the actual memory locations of a and b), so swap2 in
+// the main would flip the elements of array at indexes 0 and 2. The resulting
+// contents of array would be { 4, 79, -1, 9, 22, 19 }
+
+// 5
+void removeS(char *parameter) {
+  do {
+    if (*parameter == 's' || *parameter == 'S') {
+      char *i;
+      for (i = parameter; *i != 0; i++) {
+        *i = *(i + 1);
+      }
+      *(i - 1) = 0;
+    } else {
+      parameter++;
+    }
+  } while (*parameter != 0);
+}

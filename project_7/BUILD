@@ -6,4 +6,9 @@ cc_binary(
   srcs = [
     'rats.cpp',
   ],
+  copts = [
+    '-Wno-unused-const-variable',
+    '-Wno-unused-parameter',
+    '-Wno-unused-private-field',
+  ],
 )

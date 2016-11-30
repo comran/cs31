@@ -63,7 +63,7 @@ class Player {
   bool isDead() const;
 
   // Mutators
-  string dropPellet();
+  string dropPoisonPellet();
   string move(int dir);
   void setDead();
 
@@ -163,16 +163,15 @@ int Rat::col() const { return m_col; }
 bool Rat::isDead() const { return m_dead; }
 
 void Rat::move() {
-  // TODO:
-  //   Return without moving if the rat has eaten one poison pellet (so
-  //   is supposed to move only every other turn) and this is a turn it
-  //   does not move.
-
-  //   Otherwise, attempt to move in a random direction; if it can't
-  //   move, don't move.  If it lands on a poison pellet, eat the pellet,
-  //   so it is no longer on that grid point.
+  // Return without moving if the rat has eaten one poison pellet (so
+  // is supposed to move only every other turn) and this is a turn it
+  // does not move.
 
   if (m_poisonedTurns > 0 && m_poisonedTurns++ % 2 == 1) return;
+
+  // Otherwise, attempt to move in a random direction; if it can't
+  // move, don't move.  If it lands on a poison pellet, eat the pellet,
+  // so it is no longer on that grid point.
 
   attemptMove(*m_arena, randInt(0, 3), m_row, m_col);
 
@@ -206,7 +205,7 @@ int Player::row() const { return m_row; }
 
 int Player::col() const { return m_col; }
 
-string Player::dropPellet() {
+string Player::dropPoisonPellet() {
   if (m_arena->getCellStatus(m_row, m_col) == HAS_POISON)
     return "There's already a poison pellet at this spot.";
   m_arena->setCellStatus(m_row, m_col, HAS_POISON);
@@ -337,7 +336,6 @@ void Arena::setCellStatus(int r, int c, int status) {
 }
 
 bool Arena::addRat(int r, int c) {
-  // TODO: Check implementation.
   if (!isPosInBounds(r, c)) return false;
 
   // Don't add a rat on a spot with a poison pellet
@@ -372,15 +370,15 @@ bool Arena::addPlayer(int r, int c) {
 
 void Arena::moveRats() {
   // Move all rats
-  // TODO:  Move each rat.  Mark the player as dead if necessary.
-  //        Deallocate any dead dynamically allocated rat. (DONE)
   for (int i = 0; i < m_nRats; i++) {
     m_rats[i]->move();
     if (m_rats[i]->isDead()) {
+      // Shift all rats down to fill in deallocated rat spot.
       delete m_rats[i];
-      for(int j = i;j < m_nRats - 1;j++) {
+      for (int j = i; j < m_nRats - 1; j++) {
         m_rats[j] = m_rats[j + 1];
       }
+
       m_nRats--;
     }
 
@@ -462,10 +460,10 @@ string Game::takePlayerTurn() {
       if (recommendMove(*m_arena, player->row(), player->col(), dir))
         return player->move(dir);
       else
-        return player->dropPellet();
+        return player->dropPoisonPellet();
     } else if (playerMove.size() == 1) {
       if (tolower(playerMove[0]) == 'x')
-        return player->dropPellet();
+        return player->dropPoisonPellet();
       else if (decodeDirection(playerMove[0], dir))
         return player->move(dir);
     }
@@ -568,10 +566,6 @@ bool attemptMove(const Arena &a, int dir, int &r, int &c) {
 // move; otherwise, this function sets bestDir to the recommended
 // direction to move and returns true.
 bool recommendMove(const Arena &a, int r, int c, int &bestDir) {
-  // TODO:  Implement this function
-  // Delete the following line and replace it with your code.
-  return false;  // This implementation compiles, but is incorrect.
-
   // Your replacement implementation should do something intelligent.
   // You don't have to be any smarter than the following, although
   // you can if you want to be:  If staying put runs the risk of a
@@ -590,6 +584,35 @@ bool recommendMove(const Arena &a, int r, int c, int &bestDir) {
   // rat might be poisoned and thus sometimes less dangerous than one
   // that is not.  That requires a more sophisticated analysis that
   // we're not asking you to do.
+  bool move_direction[4] = {true, true, true, true};
+  int min_rats_direction = -1;  // -1 means stay still.
+  int min_rats_surrounding_this_direction =
+      a.numberOfRatsAt(r + 1, c) + a.numberOfRatsAt(r - 1, c) +
+      a.numberOfRatsAt(r, c + 1) + a.numberOfRatsAt(r, c - 1);
+
+  for (int i = 0; i < 4; i++) {
+    int r_local = r, c_local = c;
+
+    if (!attemptMove(a, i, r_local, c_local)) {
+      move_direction[i] = false;
+      continue;
+    }
+
+    int surrounding_rats = a.numberOfRatsAt(r_local + 1, c_local) +
+                           a.numberOfRatsAt(r_local - 1, c_local) +
+                           a.numberOfRatsAt(r_local, c_local + 1) +
+                           a.numberOfRatsAt(r_local, c_local - 1);
+    if (surrounding_rats < min_rats_surrounding_this_direction) {
+      min_rats_surrounding_this_direction = surrounding_rats;
+      min_rats_direction = i;
+    }
+  }
+
+  if (min_rats_direction >= 0 && move_direction[min_rats_direction])
+    a.player()->move(min_rats_direction);
+
+  return min_rats_direction >= 0 && (move_direction[0] || move_direction[1] ||
+                                     move_direction[2] || move_direction[3]);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -599,8 +622,7 @@ bool recommendMove(const Arena &a, int r, int c, int &bestDir) {
 int main() {
   // Create a game
   // Use this instead to create a mini-game:   Game g(3, 5, 2);
-  //Game g(10, 12, 40);
-  Game g(20, 20, 3);
+  Game g(10, 12, 40);
 
   // Play the game
   g.play();

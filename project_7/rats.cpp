@@ -382,6 +382,10 @@ void Arena::moveRats() {
       m_nRats--;
     }
 
+    // Avoid edge case where all rats are deleted and the player death checker
+    // is looking at a random piece of memory.
+    if (i >= m_nRats) continue;
+
     if (m_rats[i]->row() == m_player->row() &&
         m_rats[i]->col() == m_player->col()) {
       m_player->setDead();
@@ -618,7 +622,6 @@ bool recommendMove(const Arena &a, int r, int c, int &bestDir) {
 ///////////////////////////////////////////////////////////////////////////
 // main()
 ///////////////////////////////////////////////////////////////////////////
-
 int main() {
   // Create a game
   // Use this instead to create a mini-game:   Game g(3, 5, 2);
